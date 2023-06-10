@@ -1,0 +1,1 @@
+seller 0 "name" "desc" 00.00 0
