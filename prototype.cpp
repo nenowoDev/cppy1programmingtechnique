@@ -452,19 +452,20 @@ class Buyer:public User{
             reading>>prod.price>>prod.quantity;
 
             id[i]=prod.p_id;
-            cout<<i+1<<". "<<prod.p_name<<"  -RM "<<prod.price<<" ("<<to_string(prod.quantity)<<" left)"<<endl;
+            cout<<"("<<i+1<<") "<<prod.p_name<<"  -RM "<<prod.price<<" ("<<to_string(prod.quantity)<<" left)"<<endl;
         }
         reading.close();
-        cout<<"99. Previous Page"<<endl;
+        cout<<"(4) Search Item"<<endl;
+        cout<<"(99) Previous Page"<<endl;
         printline();
         int options;
         cout<<"Pick Action =>";
         cin>>options;
-        if(options==1){
+        if(options>=1&&options<=3){
             ifstream reading("marketplace.txt");
             
-
-            while (reading >> prod.seller&&(prod.p_id!=id[0]) ) {
+            int index=options-1;
+            while (reading >> prod.seller&&(prod.p_id!=id[index]) ) {
                 
                 reading>>prod.p_id;
                 getline(reading>>ws, prod.p_name, '\"');  //read from password to "
@@ -493,73 +494,12 @@ class Buyer:public User{
             
             reading.close();
         }
-        else if(options==2){
-            ifstream reading("marketplace.txt");
-            
-
-            while (reading >> prod.seller&&(prod.p_id!=id[1]) ) {
-                
-                reading>>prod.p_id;
-                getline(reading>>ws, prod.p_name, '\"');  //read from password to "
-                getline(reading,prod.p_name,'\"');
-                getline(reading>>ws, prod.p_desc, '\"');  //read from password to "
-                getline(reading,prod.p_desc,'\"');
-                reading>>prod.price>>prod.quantity;
-                
-            }
-            emptyspace();
-            printline();
-            cout<<"Item Info"<<endl;
-            printline();
-            cout<<"Seller : "<<prod.seller+" "<<endl;
-            cout<<"Product ID : "<<prod.p_id+" "<<endl;
-            cout<<"Product Name : "<<prod.p_name<<endl;
-            cout<<"Product Details : "<<prod.p_desc<<endl;
-            cout<<"Price : RM"<<to_string(prod.price)<<endl;
-            cout<<"Quantity : "<<to_string(prod.quantity)<<endl;
-            printline();
-            cout<<"1. Add to Cart(TBA)"<<endl;
-            cout<<"99. Previous Page "<<endl;
-            cout<<"Choose Action => ";
-            cin>>options;
-            reading.close();
-        }
-        else if(options==3){
-            ifstream reading("marketplace.txt");
-            
-
-            while (reading >> prod.seller&&(prod.p_id!=id[2]) ) {
-                
-                reading>>prod.p_id;
-                getline(reading>>ws, prod.p_name, '\"');  //read from password to "
-                getline(reading,prod.p_name,'\"');
-                getline(reading>>ws, prod.p_desc, '\"');  //read from password to "
-                getline(reading,prod.p_desc,'\"');
-                reading>>prod.price>>prod.quantity;
-                
-            }
-
-            emptyspace();
-            printline();
-            cout<<"Item Info"<<endl;
-            printline();
-            cout<<"Seller : "<<prod.seller+" "<<endl;
-            cout<<"Product ID : "<<prod.p_id+" "<<endl;
-            cout<<"Product Name : "<<prod.p_name<<endl;
-            cout<<"Product Details : "<<prod.p_desc<<endl;
-            cout<<"Price : RM"<<to_string(prod.price)<<endl;
-            cout<<"Quantity : "<<to_string(prod.quantity)<<endl;
-            printline();
-            cout<<"1. Add to Cart(TBA)"<<endl;
-            cout<<"99. Previous Page "<<endl;
-            cout<<"Choose Action => ";
-            cin>>options;
-            
-            reading.close();
-        }
+        
         else if((options!=99) && (options<1 && options>3))
             BrowseItem(prod);
     }
+
+
 };
 
 
@@ -750,6 +690,10 @@ int main(){
         
         }while(QUIT==false&&(options>0 && options<4));
 
+
+    }
+
+    if(localuser.getacctype()=="SELLER"){
 
     }
 
