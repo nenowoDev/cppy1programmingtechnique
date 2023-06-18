@@ -6,6 +6,8 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <cmath>
+#include <vector>
 using namespace std;
 
 void printline(){
@@ -449,24 +451,47 @@ class Buyer:public User{
 
         if(k>1)
             cout<<"(90) Previous Page"<<endl;
-        cout<<"(91) Next Page"<<endl;
+        if(k<maxListingPage())
+            cout<<"(91) Next Page"<<endl;
         cout<<"(99) Previous Page"<<endl;
         printline();
         int options;
         cout<<"Pick Action =>";
         cin>>options;
         if(options>=1&&options<=5){
-            ItemInfo(prod,options,k);
+            ItemInfo(prod,(5*(k-1))+options);
+        }
+        else if(options==10){
+            emptyspace();
+            SearchItem(prod);
         }
         else if(options==90&&k>1){
             emptyspace();
             BrowseItem(prod,k-1);
         }
-        else if(options==91){
+        else if(options==91&&k<maxListingPage()){
             emptyspace();
             BrowseItem(prod,k+1); 
         }
+        else{
+            emptyspace();
+            BrowseItem(prod);
+        }
        
+    }
+
+    int maxListingPage(){
+        ifstream reading("marketplace.txt");
+        string waste;
+        int item=0;
+        while(getline(reading,waste)){
+            item++;
+        }
+        int pages=ceil(item/5);
+
+
+        reading.close();
+        return pages;
     }
 
     void ProductListing(Product prod,int page){
@@ -500,9 +525,113 @@ class Buyer:public User{
         reading.close();
     }
 
-    void ItemInfo(Product prod,int index,int page){
+    void SearchItem(Product prod,string item$=" "){
+        //item$ is any description/price/quantity/id of the item, no discrimination
+        bool newitemvalue=false;
         
-        index=(5*(page-1))+index;
+        if(item$==" "){
+            printline();
+            cout<<"Item Search"<<endl;
+            printline();
+            cout<<"Please enter anything related to the item\n(ID/Name/Desc./Price/Quantity)"<<endl;
+            cout<<"Item Info : ";
+            cin>>item$;
+            newitemvalue=true;
+        }
+        ifstream reading("marketplace.txt"); 
+        
+        string waste;
+        vector<Product> list;
+        int totalfound=0;
+        getline(reading,waste);    
+        do{
+            reading >> prod.seller >> prod.p_id;
+            getline(reading>>ws, prod.p_name, '\"');  //read from password to "
+            getline(reading,prod.p_name,'\"');
+            getline(reading>>ws, prod.p_desc, '\"');  //read from password to "
+            getline(reading,prod.p_desc,'\"');
+            reading>>prod.price>>prod.quantity;
+            //seller 0 "name" "desc" 00.00 0
+            waste=prod.seller+" "+prod.p_id+" "+prod.p_name+" "+prod.p_desc+" "+to_string(prod.price)+" "+to_string(prod.quantity);
+            if(waste.find(item$) != std::string::npos){
+                list.push_back(prod);
+                totalfound+=1;
+            }
+
+        }while(!reading.eof());
+        if(list.capacity()>0){
+            vector<Product>::iterator itr;
+            
+            if(newitemvalue)
+                emptyspace();
+            cout<<"FOUND "<<totalfound<<" ITEMS"<<" with prompts \""<<item$<<"\""<<endl;
+            printline();
+            
+            for(itr=list.begin();itr!=list.end();itr++){
+                cout<<"("<<itr->p_id<<")"<<itr->p_name<<"  -RM "<<itr->price<<" ("<<to_string(itr->quantity)<<" left)"<<endl;
+            }
+            string opt;
+            
+            cout<<"(-99) Previous Page"<<endl;
+            printline();
+            cout<<"Choose Action=>";
+            cin>>opt;
+            try
+            {
+                bool valid=false;
+                if(stoi(opt)==-99){
+                    BrowseItem(prod);
+                }
+
+                else{
+                    for(itr=list.begin();itr!=list.end();itr++){
+                        if(stoi(itr->p_id)==stoi(opt))
+                            valid=true;
+                    }
+                    if(valid)
+                        ItemInfo(prod,stoi(opt));
+                    else
+                        throw string("NOT VALID ID");
+                }
+                
+            }
+            catch(const std::exception& e)
+            {
+                
+                emptyspace();
+                cout<<"ERROR "<<e.what()<<endl;
+                SearchItem(prod,item$);
+                
+
+            }
+            catch(const string error){
+                emptyspace();
+                cout<<"ERROR "<< error<<endl;
+                cin.ignore();
+                SearchItem(prod,item$);
+            }
+            
+            
+        }
+        else{
+            emptyspace();
+            cout<<"NO ITEM FOUND"<<endl;
+            BrowseItem(prod);
+        }
+        
+        
+
+        reading.close();
+
+    }
+
+        
+        
+    
+
+    void ItemInfo(Product prod,int index){
+        
+        
         ifstream reading("marketplace.txt");
         string waste;
         getline(reading,waste);
@@ -532,7 +661,10 @@ class Buyer:public User{
             cout<<"1. Add to Cart(TBA)"<<endl;
             cout<<"99. Previous Page "<<endl;
             cout<<"Choose Action => ";
-            //cin>>options;
+            int options;
+            cin>>options;
+            if(options)
+                BrowseItem(prod);
             
             reading.close();
     }
